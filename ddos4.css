@@ -1,0 +1,218 @@
+svg, svg2, svg3 {
+	border: 1px solid black;
+	
+}
+
+
+body {
+      display: block;
+      margin: 16.675px;
+      overflow: auto;
+      padding: 16.675px;
+      
+}
+
+#outer {
+	width: 750px;
+	margin: 66.7px auto;
+}
+
+#tab {
+	overflow: hidden;
+	zoom: 1;
+	background: #000;
+	border: 1px;
+	solid: #000;
+}
+
+#tab li {
+	float: left;
+	color: #fff;
+	height: 20px;
+	cursor: pointer;
+	line-height: 20px;
+	padding: 0 13.34px;
+}
+
+#tab li.current {
+	color: #000;
+	background: #ccc;
+}
+
+#content {
+	border: 1px solid #000;
+	border-top-width: 0; 
+
+}
+
+#content ul {
+	line-height: 16.675px;
+	display: none;
+	margin: 0 20px;
+	padding: 6.67px 0;
+}
+
+
+.xaxis {
+	fill: none;
+	stroke: black;
+	stroke-width: 0.8px;
+	font-size: 10px;
+
+}
+
+.yaxis {
+	fill: none;
+	stroke: black;
+	stroke-width: 0.8px;
+	font-size: 10px;
+}
+
+.axisline {
+	 font-size: small;
+	 stroke-width: 0.4px;
+}
+
+.circles {
+	fill: black;
+	stroke: white;
+	stroke-width: 0.5px;
+}
+
+.MyRect2 {
+
+    stroke: red;
+    fill: none;
+    stroke-width: 3px;
+   
+    
+	pointer-events: all;
+}
+
+.MyRect {
+	fill: none;
+	
+
+	pointer-events: all;
+}
+
+.MyRect1 {
+	fill: none;
+	
+
+	pointer-events: all;
+}
+
+.axisline {
+	fill: none;
+	stroke: black;
+}
+
+.line {
+	stroke: red;
+}
+
+.MyLine {
+	stroke: grey;
+	
+}
+
+.tips {
+	pointer-events: none;
+	display: none;
+}
+
+.tips-border {
+	fill: #F3E4E4;
+	stroke: black;
+	stroke-width: 2;
+}
+
+.tips2 {
+	pointer-events: none;
+	display: none;
+}
+
+.tips-border2 {
+	fill: #E6E6FA;
+	stroke: black;
+	stroke-width: 2;
+}
+
+.tips3 {
+	pointer-events: none;
+	display: none;
+}
+
+.tips-border3 {
+	fill: #E6E6FA;
+	stroke: black;
+	stroke-width: 2;
+}
+
+.tips4 {
+	pointer-events: none;
+	display: none;
+}
+
+.tips-border4 {
+	fill: #E6E6FA;
+	stroke: black;
+	stroke-width: 2;
+}
+
+.vtext{
+	font-size: 10px;
+}
+
+.area {
+	fill: steelblue;
+	clip-path: url(#clip);
+}
+
+.brush .extent {
+	stroke: #fff;
+	fill-opacity: 0.125;
+	shape-rendering: crispEdges;
+}
+
+.axis .axis1 .axis2 .axis3 .axis4 .axis5 .axis6 {
+	border: 1px solid black;
+	
+}
+
+.x1axis {
+	fill: none;
+	stroke: black;
+	stroke-width: 0.8px;
+	font-size: 10px;
+}
+
+.black_overlay{  
+	display: none; 
+	position: absolute;  
+	top: 0%;  
+	left: 0%;  
+	width: 100%;  
+	height: 100%;  
+	background-color: black;  
+	z-index:1001;  
+	-moz-opacity: 0.8;  
+	opacity:.80;  
+	filter: alpha(opacity=80);  
+}
+  
+.white_content {  
+	display: none;  
+	position: absolute;  
+	top: 25%;  
+	left: 25%;  
+	width: 50%;  
+	height: 50%;  
+	padding: 16px;  
+	border: 16px solid grey;  
+	background-color: white;  
+	z-index:1002;  
+	overflow: auto;  
+}
+

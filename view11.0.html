@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset = "utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DDoS Attack</title>
+    <link rel="stylesheet" type="text/css" href="ddos4.css">
+  <script type="text/javascript" src = "d3.js" charset="utf-8"></script>
+  <script src="http://www.ourd3js.com/library/multext.js" charset="utf-8"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js">
+  </script>
+  <link rel="stylesheet" href="jquery.range.css">
+  <link rel="stylesheet" href="css/jqueryui.min.css" />
+  <link rel="stylesheet" href="css/jquery-ui-slider-pips.min.css" />
+
+  
+</head>
+<body>
+ <div id="matrix" style="position:absolute;left:460px;top:50px">
+  
+ </div>
+ <div id="view4" style="position:absolute;left:887.11px;top:241px ">
+
+ </div>
+ 
+ <div id="view2" style="position:absolute;left:887.11px;top:50px">
+ 
+ </div>
+
+ <div id="colorRect" style="position:absolute;left:1100.55px;top:100px">
+
+ </div> 
+
+ <div id = "word" style="position:absolute;left:500px;top:10px">
+  Attack time
+ </div>
+
+
+ <div id="outer" style="position:absolute;left:460px;top:480px">
+   <ul id="tab">
+     <li class="current"> Timeline </li>
+     <li> Details </li>
+     
+   </ul>
+   <div id="content">
+     <ul id="timeline" style="display:block;">
+       Month:
+       <div id="histogram1" >
+         
+       </div>
+
+       <div class="content active" id="slider3">
+             
+       <div id="myslider3"></div>
+       <br />
+       <div id="histogram2" >
+         
+       </div>
+       Day:
+       <div id="myslider4"></div>
+       <br />
+       <br />
+       <div id="histogram3" >
+         
+       </div>
+       Hour:
+       <div id="myslider5"></div>
+                    
+       </div>
+        
+      
+     </ul>
+     <ul id="details" style="overflow-y:auto; height: 200.1px; width: 650px">
+      
+        <table width="650" height="193.43" border = "2" cellpadding="10">
+
+        </table>
+
+     </ul>
+   </div>
+ </div>
+
+ <div id="view3"  >
+    <p style="position:absolute;left: 60px;top:0px">srcIP</p>
+    <p style="position:absolute;left: 380px;top:0px">destIP</p>
+ </div>
+
+
+ <div id="colorRect2" style="position:absolute;left:1100.55px;top:166px">
+
+ </div>
+
+ <div id="pic" style="position:absolute;left:1200.55px;top:10px">
+  <img src="pic.png" width="50px" height="50px"onclick="document.getElementById('light').style.display='block';document.getElementById('fade').style.display='block'" />
+
+   
+ </div>
+ <div id="light" class="white_content">
+   Instructions:
+   <br />
+   本网页是针对于ChinaVis给出的网络日志进行的ddos攻击可视化，借助可视化，我们可以清晰看到该日志集中ddos攻击情况以及易受攻击地址，进而进行防护：
+   <br />
+   1.用户在中部拖拽框中选定ip的前两位，然后在下方timeline模块中选定所展示数据的时间（默认为数据集中涉及到的全部时间）。
+   <br />
+   2.Matrix显示后，可以用上方attack time拖动条控制显示攻击次数大于选定值的所有点；用下方拖动条也可以控制改变ip的前两位（局域网选择）。
+   <br />
+   3.Matrix小矩形颜色代表该区域内所受攻击的多少，即颜色越深，受到的攻击越多。
+   <br />
+   4.在左边图形中显示的是全部数据间源与目的ip之间的关系。
+   <br />
+   5.点击matrix上任意小矩形可以在旁边两个视图中显示该16*16小矩形中攻击次数多少（右上图，颜色区分）；在下方图中默认显示受攻击最多的点的力导向图；左图中可以高亮与所选区域有影响的数据。
+   <br />
+   6.点击右上points图中任一点，可以在下方显示该点的力导向图（表示源ip与目的ip的关系）。
+   <br />
+   7.点击matrix或右上方points图上某一点，可以在details模块中显示该点数据的全部日志信息。
+   <br />
+   8.Matrix底部与左部的柱状图代表本行／列所受攻击次数的大小关系。
+   <br />
+   <br />
+
+   <input type="button" value="close" onclick="document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'" />
+ </div>
+ <div id="fade" class="black_overlay">
+   
+ </div>
+
+ <div class="tabs-content" style="width:500px;position:absolute;left:470px;top:456px">
+   IP(top:A,bottom:B) 
+  <div class="content active" id="slider1">
+   <div id="myslider" style="width:800px">
+    
+   </div>
+   
+   <div id="myslider1" style="width:800px">
+
+   </div>
+                    
+  </div>
+  
+</div>
+
+<div class="tabs-content" style="width:250px;position:absolute;left:600px;top:5px">
+                        
+  <div class="content active" id="slider2">
+                                
+  <div id="myslider2"></div>
+                        
+  </div>
+                          
+</div>
+
+
+ <script type="text/javascript">
+    var svg = null; //matrix1用
+    var svg1 = null; //view4用
+    var svg2 = null; //details用
+    var svg3 = null; //view2用
+    var svg4 = null; //view2颜色渐变矩形用
+    var svg5 = null; //view3 graph 用
+    var svg6 = null; //红绿图例用
+   // var svg7 = null;
+    var svg8 = null; //后三个都是月份日期上面的svg
+    var svg9 = null;
+    var svg10 = null;
+
+    
+    var Data;
+    var Data2 = new Array();
+    var Data4 = new Array();
+    var csvdata2;
+    //var csvdata;
+    var Data3 = new Array();
+    var destIP = new Array();
+    var edgesG = new Array();
+    var nodesSrc = new Array();
+    var nodesDst = new Array();
+    var srcIP = [];
+    var value = 10000;
+    var currentTimes = 0;
+    var ipa = 0;
+    var ipb = 0;
+    var flag = 1;//用于ipa,b,判断是不是第一次拉轴
+    var Position;
+    var Position2;
+    var Position3;
+    var month1 = 7;
+    var month2 = 7;
+    var day1 = 1;
+    var day2 = 31;
+    var hour1 = 0;
+    var hour2 = 24;
+    var minute1 = 0;
+    var minute2 = 60;
+    var second1 = 0;
+    var second2 = 60;
+    var maxTimes;
+    var monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var dateArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var hourArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var arr = new Array();
+
+     /*svg7 = d3.select("#timeline").append("svg")
+            .attr("class", "axis")
+            .attr("width", 700)
+            .attr("height", 300);
+
+     svg7.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", 650)
+            .attr("height", 270);
+     */
+
+
+    start();
+
+    
+    //用户第一次打开网页的时候要显示matrix，不要显示一片空白
+    //相当于初始化
+    function start(){
+       svg = d3.select("#matrix")
+            .append("svg")
+            .attr("id", "axis")
+            .attr("class", "axis")
+            .attr("width", 420)
+            .attr("height", 400)
+            .on("click", function(){
+              alert("ahahahaha");
+            });
+
+      svg1 = d3.select("#view4")
+            .append("svg")
+            .attr("id", "axis1")
+            .attr("class", "axis1")
+            .attr("width", 350)
+            .attr("height", 220);
+
+      svg3 = d3.select("#view2")
+            .append("svg")
+            .attr("id", "axis3")
+            .attr("class", "axis3")
+            .attr("width", 186.76)
+            .attr("height", 186.76);
+
+      svg5 = d3.select("#view3")
+            .append("svg")
+            .attr("id", "axis5")
+            .attr("class", "axis5")
+            .attr("width", 416.875)
+            .attr("height", 810);
+
+
+
+       
+
+        drawXAxis();
+
+        drawYAxis();
+
+        histogram1();
+    }
+
+
+
+    //主要函数
+    function search(){
+       d3.selectAll("#axis").remove();
+       d3.selectAll("#axis1").remove();
+       d3.selectAll("#axis3").remove();
+       d3.selectAll("#axis4").remove();
+       d3.selectAll("#axis5").remove();
+       d3.selectAll("#axis6").remove();
+
+
+    var v1;
+    var v2;
+    var k;
+    var mess = 0;
+    var j = 0;
+    //var destIP = new Array();
+    Data = [];
+    Data2 = [];
+    Data4 = [];
+    Data3 = [];
+    var nodes = [];
+    var edges = [];
+
+     
+
+
+    d3.csv("dataaccess3.csv", function (error, csvdata){
+      // body...
+      if(error){
+        console.log(error);
+      }
+      //console.log(csvdata);
+
+      //console.log("2ipa="+ipa);
+      //console.log("2ipb="+ipb);
+
+
+      //决定ip的前两部分的位数
+      if(ipa>99){
+         if(ipb>99){
+             Position = 4;
+             Position2 = 8;//C为从8开始
+         }else
+         if(ipb>9){
+            Position = 4;
+            Position2 = 7;
+         }else{
+            Position = 4;
+            Position2 = 6;
+         }
+      }else
+      if(ipa>9){
+        if(ipb>99){
+             Position = 3;
+             Position2 = 7;
+         }else
+         if(ipb>9){
+            Position = 3;
+            Position2 = 6;
+         }else{
+            Position = 3;
+            Position2 = 5;
+         }
+
+      }else{
+        if(ipb>99){
+             Position = 2;
+             Position2 = 6;
+         }else
+         if(ipb>9){
+            Position = 2;
+            Position2 = 5;
+         }else{
+            Position = 2;
+            Position2 = 4;
+         }
+
+      }
+
+      var pos1;//代表月份开头的位置
+      var pos2;//代表日期开头的位置
+      var postime1;//代表分钟开头的位置
+      var postime2;//代表秒开头的位置
+      var si = 1;
+      var sl = 1;
+      destIP = [];
+       
+      for(var i=0;i<csvdata.length;i++){
+      
+
+      if(parseInt(csvdata[i].date.substring(5, 6)) >= month1 && parseInt(csvdata[i].date.substring(5, 6)) <= month2){ //选择时间段－月
+        if(parseInt(csvdata[i].date.substring(7, 9)) >= day1 && parseInt(csvdata[i].date.substring(7, 9)) <= day2){ //选择时间段－天
+            if(parseInt(csvdata[i].time.substring(0, 2)) >= hour1 && parseInt(csvdata[i].time.substring(0, 2)) <= hour2){//选择时间段－小时
+              
+                                
+                  if(csvdata[i].destIP.substring(0, Position-1) == ipa && csvdata[i].destIP.substring(Position, Position2-1) == ipb){ //选择destIpA与B
+                      for(var h=Position2;h<csvdata[i].destIP.length;h++){
+                        if(csvdata[i].destIP.substring(h, h+1) == "."){
+                           Position3 = h+1;
+              
+                         }
+                      }
+                      var len = csvdata[i].destIP.length;
+                      if(j == 0){//第一次进
+                        destIP[j++] = parseInt(csvdata[i].destIP.substring(Position2, Position3-1));
+                        destIP[j++] = parseInt(csvdata[i].destIP.substring(Position3, len));
+                        destIP[j++] = 1;//本ip次数为1
+
+                      }else{
+                        for(k=0;k<destIP.length;k++){
+            
+                         if(parseInt(csvdata[i].destIP.substring(Position2, Position3-1)) == destIP[k] && parseInt(csvdata[i].destIP.substring(Position3, len)) == destIP[k+1])
+                         {
+
+                               destIP[k+2]++;
+           
+                               break;
+                            }else{
+                               k = k+2;
+                            }
+
+                         }
+                         if(k == destIP.length){//没找到重复的，所以新加入ip
+            
+                             destIP[j++] = parseInt(csvdata[i].destIP.substring(Position2, Position3-1));
+                             destIP[j++] = parseInt(csvdata[i].destIP.substring(Position3, len));
+                             destIP[j++] = 1;
+                          }
+
+                      }
+
+
+                  }
+
+                }
+
+              
+            }
+        }
+
+
+      }
+
+
+   console.log(destIP);
+    drawView2();
+
+   // drawDetails();
+
+    drawGraph();
+
+    var width = 420;
+    var height = 400;
+
+    svg = d3.select("#matrix")
+            .append("svg")
+            .attr("id", "axis")
+            .attr("class", "axis")
+            .attr("width", width)
+            .attr("height", height)
+            .call(
+              d3.behavior.zoom()
+                   .scaleExtent([1, 10])
+                   //.center([50, 50])
+                   .on("zoom", zoom)
+              )
+            .append("g");
+
+
+    svg.append("text")
+       .attr("class", "title")
+       .attr("x", 250)
+       .attr("y", 30)
+       .text("destIP matrix");
+
+
+         svg1 = d3.select("#view4").append("svg")
+            .attr("id", "axis1")
+            .attr("class", "axis1")
+            .attr("width", 350)
+            .attr("height", 220);
+
+         svg4 =  d3.select("#colorRect").append("svg")
+               .attr("id", "axis4")
+               .attr("class", "axis4")
+               .attr("width", 150)
+               .attr("height", 50*0.667)
+               .append("g");
+
+         svg5 = d3.select("#view3").append("svg")
+            .attr("id", "axis5")
+            .attr("class", "axis5")
+            .attr("width", 416.875)
+            .attr("height", 810)
+            .call(
+              d3.behavior.zoom()
+                   .scaleExtent([1, 10])
+                   .on("zoom", zoom2)
+              )
+            .append("g");
+
+        svg6 =  d3.select("#colorRect2").append("svg")
+               .attr("id", "axis6")
+               .attr("class", "axis6")
+               .attr("width", 150)
+               .attr("height", 50*0.667)
+               .append("g");
+
+
+
+    drawMatrix();
+
+    //drawView4();
+
+
+
+    });
+
+
+    function zoom(){
+            svg.attr("transform", "translate(" + d3.event.translate +
+              ")scale(" +d3.event.scale + ")");
+        }
+
+    function zoom2(){
+            svg5.attr("transform", "translate(" + d3.event.translate +
+              ")scale(" +d3.event.scale + ")");
+        }
+  }
+    
+
+
+
+
+/********************** View 1 Part ***********************************/
+   //draw the two matrix above
+    function drawMatrix(){
+       // tst = 2;
+        var pos;
+        var tmpi = 0;
+        var dataum = new Array();
+        var dataum2 = new Array();
+        for(var i = 0;i<256;i++){
+          dataum[i] = 0;
+          dataum2[i] = tmpi;
+
+          tmpi++;
+
+        }
+
+        for(var w=0;w<destIP.length;w++){
+           pos = parseInt(destIP[w]/16)+parseInt(destIP[w+1]/16)*16;//算哪个格
+           dataum[pos] += destIP[w+2];
+           w += 2;
+        }
+
+        
+        var cx;
+        var cy;
+
+       
+        //准备小矩形颜色插值
+        var maxvalue = d3.max(dataum);
+        var minvalue = d3.min(dataum);
+
+        var linear = d3.scale.linear()
+                       .domain([minvalue, maxvalue])
+                       .range([0, 1]);
+
+        var a = d3.rgb(255, 255, 255);
+        var b = d3.rgb(0, 0, 255);
+        var c = d3.rgb(255, 0, 255);
+
+        var computeColor = d3.interpolate(a, b);
+
+
+
+        //增加小矩形为了实现选中效果
+          svg.selectAll(".MyRect")
+              .data(dataum2)
+              .enter()
+              .append("rect")
+              .attr("class", "MyRect")
+              .attr("x", function(d, i){
+                
+                 return 20+(i%16+1)*20.59;
+
+              })
+              .attr("y", function(d, i){
+                 return 367-(parseInt(i/16)+1)*20.59;
+              })
+              .attr("width", 20.59)
+              .attr("height", 20.59)
+              .style("fill", function(d, i){
+                var t = linear(dataum[i]);
+                var color = computeColor(t);
+                return color.toString();
+              })
+              .on("mouseover", function(){
+                d3.select(this)
+                  .attr("stroke", "red")
+                  .attr("stroke-width", 3)
+                  .transition()
+                  .delay(100)
+                  .attr("stroke", "none");
+
+
+              })
+            
+              .on("mousedown", function(d, i){
+                //在view2上显示该小矩阵内所有点
+
+                d3.selectAll(".Circle").remove();//清除view2中所有的circle
+                d3.selectAll(".colorrect").remove();
+                d3.selectAll(".valueText").remove();
+
+                svg5.selectAll(".lineG")
+                    .attr("stroke", "#eee9e9");
+                d3.selectAll(".MyRect").attr("stroke", "none");  
+
+
+
+                //判读用户点击的位置
+                var v1 = d%16;
+                var v2 = parseInt(d/16);
+                
+
+                 chooseCircle(v1, v2);
+
+                 drawZAxis(v1, v2);//画view2的数据线
+
+                 d3.select(this).attr("stroke", "red")
+                  .transition()
+                  .delay(100000)
+                  .attr("stroke", "none");
+
+                
+
+              });
+
+        drawXAxis();
+
+        drawYAxis();
+
+
+        //console.log(destIP);
+
+        drawRect();
+
+        drawPoints();
+
+        drawLegend();
+
+       // drawGraph();
+
+
+        //专门为选择某一小矩形而筛选数据的
+        function chooseCircle(v1, v2){
+
+           var tmp1 = (v1+1)*16;//右上角x
+           var tmp2 = (v2+1)*16;//右上角y
+           var tmp3 = v1*16;//左下角x
+           var tmp4 = v2*16;//左下角y
+
+           var posi1;
+           var posi2;
+           var posi3;
+           var length1;
+           var fg = 1;
+           var ff = 0;
+           var focus = new Array();
+
+
+           Data3 = destIP.concat();
+
+
+           if(ipa>99){
+              posi1 = 4;
+              if(ipb>99){
+            posi2 = 8;
+           }else if(ipb>9){
+            posi2 = 7;
+           }else{
+            posi2 = 6;
+           }
+           }else if(ipa>9){
+              posi1 = 3;
+              if(ipb>99){
+            posi2 = 7;
+           }else if(ipb>9){
+            posi2 = 6;
+           }else{
+            posi2 = 5;
+           }
+           }else{
+            posi1 = 2;
+            if(ipb>99){
+            posi2 = 6;
+           }else if(ipb>9){
+            posi2 = 5;
+           }else{
+            posi2 = 4;
+           }
+           }
+           
+
+           for(var p=0;p<edgesG.length;p++){
+
+            if(parseInt(edgesG[p].target.substring(0, posi1-1)) == ipa){
+              if(parseInt(edgesG[p].target.substring(posi1, posi2-1)) == ipb){
+                length1 = edgesG[p].target.length;
+                for(var pp=posi2;pp<15;pp++){
+                   if(edgesG[p].target.substring(pp, pp+1) == "." ){
+                        posi3 = pp+1;
+                        break;
+                      }
+                    }
+
+                if(parseInt(edgesG[p].target.substring(posi2, posi3-1))<= tmp1 && parseInt(edgesG[p].target.substring(posi2, posi3-1)) >= tmp3){
+
+                    if(parseInt(edgesG[p].target.substring(posi3, length1)) >= tmp4 && parseInt(edgesG[p].target.substring(posi3, length1)) <= tmp2){
+                            //选定了一小矩阵中～
+  
+
+
+                         d3.selectAll("#view3 svg g g line")
+                          .attr("id", function(d, i){
+
+
+                            if(edgesG[i].target == edgesG[p].target){
+                              d3.select(this)
+                              .style("fill", "blue")
+                              .attr("stroke", "blue")
+                              .attr("stroke-width", 3);
+                               
+                              focus[ff++] = edgesG[i].target;
+
+
+                            }
+                           
+                          });
+                            
+                    }
+                }
+                 
+              }
+            }
+           }
+
+           
+        }
+
+        function drawZAxis(v1, v2){
+          var p = 1;
+          var n = 0;
+          var p1 = 1;
+          var n1 = 0;
+          var j2 = 0;
+          var j3 = 0;
+          
+
+          var tmp2 = (v2+1)*16;
+          var tmp3 = v1*16;
+
+          var percent1;//x轴比例
+          var percent2;//y轴比例
+          maxTimes = 0;
+          var maxNum = 0;
+          var strIP;
+
+          var DataTimes = new Array();
+          var DataForce = new Array();//力导向图用
+
+          DataForce = [];
+          DataTimes = [];
+
+          //console.log(destIP);
+
+
+          for(var j=0;j<Data3.length/3;j++){
+           // DataTimes[j] = Data3[2+j*3];
+            if(Data3[j*3]>=tmp3 && Data3[j*3]<=(tmp3+16)){
+              if(Data3[1+j*3]>=(tmp2-16) && Data3[1+j*3]<=tmp2){
+                //提取出view2中显示的点
+                 DataForce[j2++] = Data3[j*3];
+                 DataForce[j2++] = Data3[j*3+1];
+                 DataForce[j2++] = Data3[j*3+2];
+                 DataTimes[j3++] = Data3[2+j*3];
+                 if(DataTimes[j3-1] > maxTimes){
+                  //通过这个一步步找到DataForce所存ip的times的最大值
+                   maxTimes = DataTimes[j3-1];
+                   maxNum = j2 -3;
+                 }
+              }
+            }
+            
+          }
+
+          console.log("ceshi");
+          console.log(DataForce);
+          console.log(DataTimes);
+
+
+          //颜色插值
+          var maxvalue = d3.max(DataTimes);
+          var minvalue = d3.min(DataTimes);
+
+          var linear = d3.scale.linear()
+                       .domain([0, maxvalue])
+                       .range([0, 1]);
+
+          var a = d3.rgb(255, 255, 255);
+          var b = d3.rgb(0, 0, 255);
+
+          var computeColor = d3.interpolate(a, b);
+
+
+          var defs = svg4.append("defs");
+
+          var linearGradient = defs.append("linearGradient")
+                                 .attr("id", "linearColor")
+                                 .attr("x1", "0%")
+                                 .attr("y1", "0%")
+                                 .attr("x2", "100%")
+                                 .attr("y2", "0%");
+
+          var stop1 = linearGradient.append("stop")
+                                 .attr("offset", "0%")
+                                 .style("stop-color", a.toString());
+
+          var stop2 = linearGradient.append("stop")
+                                 .attr("offset", "100%")
+                                 .style("stop-color", b.toString());
+
+          var colorRect = svg4.append("rect")
+                        .attr("class", "colorrect")
+                        .attr("x", 20*0.667)
+                        .attr("y", 20*0.667)
+                        .attr("width", 100*0.667)
+                        .attr("height", 20*0.667)
+                        .style("fill", "url(#" + linearGradient.attr("id") + ")");
+          var minValueText = svg4.append("text")
+                        .attr("class", "valueText")
+                        .attr("x", 10*0.667)
+                        .attr("y", 20*0.667)
+                        
+                        .text(function(){
+                          return 0;
+                        });
+
+          var maxValueText = svg4.append("text")
+                        .attr("class", "valueText")
+                        .attr("x", 120*0.667)
+                        .attr("y", 20*0.667)
+                        
+                        .text(function(){
+                          return maxvalue;
+                        });
+          
+
+           svg3.selectAll(".Circle")
+               .data(DataTimes)
+               .enter()
+               .append("g")
+               .append("circle")
+               .attr("class", "Circle")
+               .style("fill", function(d, i){
+                var t = linear(d);
+                var color = computeColor(t);
+                return color.toString();
+               })
+               .attr("stroke", "black")
+               .attr("cx", function(d, i){
+                  percent1 = (DataForce[n]-tmp3)/16; //x轴比例
+                  
+                  n = n+3;
+
+                  return percent1*150+18.38; 
+               })
+               .attr("cy", function(d, i){
+                 percent2 = (tmp2-DataForce[p])/16; //y轴比例
+
+                 p = p+3;
+
+
+                  return percent2*150+18.38;
+               })
+               .attr("r", 7)
+               .on("mouseover", function(d, i){
+                d3.select(this).transition()
+                  .attr("stroke", "red");
+                
+                var tmp16 = 0;
+                var ddd = d;
+
+                var ccc = d3.mouse(this);
+                var cxx = ccc[0];
+                var cyy = ccc[1];
+
+                var tips = svg3.append("g").attr("class", ".tips");
+                tips.append("rect")
+                    .attr("class", "tips-border")
+                    .attr("width", 200)
+                    .attr("height", 50)
+                    .attr("x", function(){
+                       if(cxx > 95) cxx -= 90;
+                       return cxx;
+                    })
+                    .attr("y", function(){
+                      if(cyy > 135) cyy -= 50;
+                      return cyy;
+
+                    })
+                    .attr("rx", 10*0.667)
+                    .attr("ry", 10*0.667);
+
+                var word1 = tips.append("text")
+                    .attr("class", "tips-text")
+                    .attr("x", cxx+7)
+                    .attr("y", cyy+25)
+                    .text(function(){
+                      
+                      return "Times: "+ddd;
+                    });
+
+             
+              })
+              .on("mouseout", function(){
+                d3.select(this).transition()
+                  .attr("stroke", "black");
+
+               svg3.selectAll(".tips-text").remove();
+               svg3.selectAll(".tips-border").remove();
+
+
+                d3.select(".tips")
+                  .style("display", "none");
+                  
+              })
+              .on("click", function(d, i){
+
+                $(document).ready(function(){
+                                $("#content ul table tr").remove();
+                              });
+                              
+                
+                strIP = ipa + "";
+                strIP = strIP +"." + (ipb+"");
+                strIP = strIP +"."+ (DataForce[i*3]+"");
+                strIP = strIP +"."+ (DataForce[i*3+1]+"");
+
+                drawView4(strIP);
+
+                d3.csv("dataaccess3.4.csv", function(error, csv){
+                    
+                    if(error){
+                      console.log(error);
+                    }
+
+                    for(var t=0;t<csv.length;t++){
+                      if(parseInt(csv[t].date.substring(5, 6)) >= month1 && parseInt(csv[t].date.substring(5, 6)) <= month2){ //选择时间段－月
+        if(parseInt(csv[t].date.substring(7, 9)) >= day1 && parseInt(csv[t].date.substring(7, 9)) <= day2){ //选择时间段－天
+            if(parseInt(csv[t].time.substring(0, 2)) >= hour1 && parseInt(csv[t].time.substring(0, 2)) <= hour2){//选择时间段－小时
+
+                if(csv[t].destIP == strIP){
+                  $(document).ready(function(){
+
+                                $("#content ul table").append("<tr><td align='left' valign='top'><span>date: </span>"+csv[t].date+" <span>time: </span>"+csv[t].time+" <span>SrcIp: </span>"+csv[t].srcIP+" <span>destIp: </span>"+csv[t].destIP+" <span>srcport: </span>"+csv[t].SRCPORT+" <span>dstport: </span>"+csv[t].DSTPORT+" <span>fileaffix: </span>"+csv[t].FILEAFFIX+" <span>filelen: </span>"+csv[t].FILELEN+"</td></tr>");
+                                $("#content ul table tr td span").css("font-weight", "bold");
+
+                            });
+                }
+                    }
+                  }
+                 }
+                }  
+
+                });
+
+                
+              });
+
+          svg3.selectAll(".vtext").remove();
+
+          var text11 = svg3.append("text")
+                           .attr("class", "vtext")
+                           .attr("x", 5)
+                           .attr("y", 10)
+                           .text(function(){
+                            return tmp2;
+                           });
+
+         var text12 = svg3.append("text")
+                           .attr("class", "vtext")
+                           .attr("x", 5)
+                           .attr("y", 170)
+                           .text(function(){
+                            return tmp2-16;
+                           });
+
+         var text13 = svg3.append("text")
+                           .attr("class", "vtext")
+                           .attr("x", 10)
+                           .attr("y", 180)
+                           .text(function(){
+                            return tmp3;
+                           });
+
+         var text14 = svg3.append("text")
+                           .attr("class", "vtext")
+                           .attr("x", 170)
+                           .attr("y", 180)
+                           .text(function(){
+                            return tmp3+16;
+                           });
+
+          strIP = ipa + "";
+          strIP = strIP +"." + (ipb+"");
+          strIP = strIP +"."+ (DataForce[maxNum]+"");
+          strIP = strIP +"."+ (DataForce[maxNum+1]+"");
+
+          //console.log("strIP="+strIP);
+
+          drawView4(strIP);
+
+
+          
+        
+        }
+
+
+    }
+
+    function drawXAxis(){
+        var length = 350;
+        var dataset6 = ["0", "16", "32", "48", "64", "80", "96", "112", "128", "144", "160", "176", "192", "208", "224", "240", "256"];
+
+        var scale = d3.scale.ordinal()
+                     .domain(dataset6)
+                     .rangeBands([0, length]);
+
+        var xAxis = d3.svg.axis()
+                     .scale(scale)
+                     .orient("bottom")
+                     .ticks(17);
+
+        svg.append("g")
+           .attr("class", "xaxis")
+           .attr("transform", "translate(30, 367)")
+           .call(xAxis);
+
+        d3.selectAll("g.xaxis g.tick")
+          .append("line")
+          .classed("gird-line", true)
+          .attr("class", "axisline")
+          .attr("x1", 0)
+          .attr("y1", 0)
+          .attr("x2", 0)
+          .attr("y2", -333.5);
+
+    }
+
+    function drawYAxis(){
+        var length = 350;
+        var dataset5 = ["256", "240", "224", "208", "192", "176", "160", "144", "128", "112", "96", "80", "64", "48", "32", "16", "0"];
+
+        var y1 = d3.scale.ordinal()
+                     .domain(dataset5)
+                     .rangeBands([0, length]);
+
+        var yAxis = d3.svg.axis()
+                     .scale(y1)
+                     .ticks(17)
+                     .orient("left");
+
+
+        svg.append("g")
+           .attr("class", "yaxis")
+           .attr("transform", "translate(40, 27)")
+           .call(yAxis);
+
+        d3.selectAll("g.yaxis g.tick")
+          .append("line")
+          .classed("gird-line", true)
+          .attr("class", "axisline")
+          .attr("x1", 0)
+          .attr("y1", 0)
+          .attr("x2", 333.5)
+          .attr("y2", 0);
+    }
+
+
+    function drawRect(){
+
+      svg.selectAll(".MyLine").remove();
+      svg.selectAll(".MyLine2").remove();
+
+      var dataset3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];//matrix的y轴
+      var dataset4 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0, 0];//matrix的x轴
+
+      for(var i=0;i<destIP.length;i++){
+       if(i%3 != 2){
+        if(destIP[i] < 16){
+          if(i%3 == 0){
+            dataset4[0] += destIP[i+2];
+          }else{
+            dataset3[15]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 32){
+          if(i%3 == 0){
+            dataset4[1]+= destIP[i+2];
+          }else{
+            dataset3[14]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 48){
+          if(i%3 == 0){
+            dataset4[2]+= destIP[i+2];
+          }else{
+            dataset3[13]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 64){
+          if(i%3 == 0){
+            dataset4[3]+= destIP[i+2];
+          }else{
+            dataset3[12]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 80){
+          if(i%3 == 0){
+            dataset4[4]+= destIP[i+2];
+          }else{
+            dataset3[11]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 96){
+          if(i%3 == 0){
+            dataset4[5]+= destIP[i+2];
+          }else{
+            dataset3[10]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 112){
+          if(i%3 == 0){
+            dataset4[6]+= destIP[i+2];
+          }else{
+            dataset3[9]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 128){
+          if(i%3 == 0){
+            dataset4[7]+= destIP[i+2];
+          }else{
+            dataset3[8]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 144){
+          if(i%3 == 0){
+            dataset4[8]+= destIP[i+2];
+          }else{
+            dataset3[7]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 160){
+          if(i%3 == 0){
+            dataset4[9]+= destIP[i+2];
+          }else{
+            dataset3[6]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 176){
+          if(i%3 == 0){
+            dataset4[10]+= destIP[i+2];
+          }else{
+            dataset3[5]+= destIP[i+1];
+          }
+        }else
+        if(destIP[i] < 192){
+          if(i%3 == 0){
+            dataset4[11]+= destIP[i+2];
+          }else{
+            dataset3[4]+= destIP[i+1];
+          }
+        }else 
+        if(destIP[i] < 208){
+
+          if(i%3 == 0){
+            dataset4[12]+= destIP[i+2];
+          }else{
+            dataset3[3]+= destIP[i+1];
+          }
+        }else 
+        if(destIP[i] < 224){
+
+          if(i%3 == 0){
+            dataset4[13]+= destIP[i+2];
+          }else{
+            dataset3[2]+= destIP[i+1];
+          }
+        }else 
+        if(destIP[i] < 240){
+
+          if(i%3 == 0){
+            dataset4[14]+= destIP[i+2];
+          }else{
+            dataset3[1]+= destIP[i+1];
+          }
+        }else 
+        if(destIP[i] < 256){
+
+          if(i%3 == 0){
+            dataset4[15]+= destIP[i+2];
+          }else{
+            dataset3[0]+= destIP[i+1];
+          }
+        }
+
+
+       }
+      }
+
+      //console.log(dataset3);
+      //console.log(dataset4);
+
+      var total = 0;
+      var total2 = 0;
+
+      for(var i=0;i<dataset3.length;i++){
+          total += dataset3[i]*dataset3[i];
+          total2 += dataset4[i]*dataset4[i];
+      }
+
+      i = 0;
+      
+      //为了数据均一化
+      total = Math.sqrt(total);
+      total2 = Math.sqrt(total2);
+
+     //四根横纵坐标的线
+      var line1 = svg.append("line")
+                   .attr("x1", 0)
+                   .attr("y1", 30)
+                   .attr("x2", 0)
+                   .attr("y2", 367)
+                   .attr("stroke", "grey")
+                   .attr("stroke-width", 2);
+
+      var line2 = svg.append("line")
+                   .attr("x1", 20)
+                   .attr("y1", 397)
+                   .attr("x2", 370)
+                   .attr("y2", 397)
+                   .attr("stroke", "grey")
+                   .attr("stroke-width", 2);
+
+
+      //lines represent the quantity of the attack in one line
+      //线之间的间隔
+      var linePadding = 20.59;
+
+      var start = 48;
+      var start2 = 50;
+
+      var lines1 = svg.selectAll(".MyLine")
+                    .data(dataset3)
+                    .enter()
+                    .append("line")
+                    .attr("class", "MyLine")
+                    .attr("stroke", "grey")
+                    .attr("stroke-width", 10)
+                    .attr("x1", 0)
+                    .attr("y1", function(d, i){
+                     
+                      return start+i*linePadding;
+                    })
+                    .attr("y2", function(d, i){
+
+                      return start+i*linePadding;
+                    })
+                    .attr("x2", function(d, i){
+                      if(total != 0)
+                        return d/total *40;
+                      else return 0;
+                    })
+                    .on("click", function(){
+                       alert("这个小柱状图表示：该矩阵每排受到的攻击次数多少的比较，均已均一化显示");
+                    });
+
+      var lines2 = svg.selectAll(".MyLine2")
+                     .data(dataset4)
+                     .enter()
+                     .append("line")
+                     .attr("class", "MyLine2")
+                     .attr("stroke", "grey")
+                     .attr("stroke-width", 10)
+                     .attr("x1", function(d, i){
+                        return start2+i*linePadding; 
+                     })
+                     .attr("y1", 397)
+                     .attr("x2", function(d, i){
+                        return start2+i*linePadding; 
+                     })
+                     .attr("y2", function(d, i){
+                       if(total2 != 0)
+                        return 397-d/total2 *30;
+                       else return 397;
+                     })
+                     .on("click", function(){
+                       alert("这个小柱状图表示：该矩阵每列受到的攻击次数多少的比较，均已均一化显示");
+                    });
+
+    }
+
+
+    function drawPoints() {
+
+       Data2 = [];
+       Data4 = [];
+       var j = 0;
+      // console.log(destIP);
+
+      svg.selectAll("circle").remove();
+
+      
+       for(var u=0;u<destIP.length;u++){
+         if(destIP[u+2] > currentTimes){
+          Data2[j] = destIP[u];//destIp中的c项
+          Data4[j] = destIP[u+1];//destIp中的d项
+          j++;
+
+          
+         }
+          u = u+2;
+          
+       }
+
+                  
+            var circle = svg.selectAll("circle")
+                            .data(Data2)
+                            .enter()
+                            .append("g")
+                            .append("circle")
+                            .attr("class", "circles")
+                            .attr("cx", function(d, i){
+                                return 1.287*d+40;//乘2是因为按比例放大，20的空间用39.3px表示，所以1要用2px来表示
+                            })
+                            .attr("cy", function(d, i){
+                                return 1.287*Data4[i]*(-1)+367;
+                            })
+                            .attr("r", 1.35)
+                            .on("mouseover", function(){
+                               d3.select(this).transition().attr("r", 1.7)
+                                 .attr("stroke", "red");
+
+                            })
+                           .on("mouseout", function(){
+                               d3.select(this).transition().attr("r", 1.35)
+                                 .attr("stroke", "white");
+                            })
+                           .on("click", function(d,i){
+
+                              $(document).ready(function(){
+                                $("#content ul table tr").remove();
+                              });
+                              
+
+                              var str = " dateTime: ";
+                              var mm = d3.mouse(this);
+                              var cc = Math.round(mm[0]);
+                              var dd = Math.round(mm[1]);
+                              
+                              d3.csv("dataaccess3.2.csv", function(error, csvdata){
+                             
+                              var IPC = d;
+                              var IPD = Data4[i];
+                              //console.log("IPC="+IPC+"IPD="+IPD);
+
+                              var pos1;//代表月份开头的位置
+                              var pos2;//代表日期开头的位置
+                              var postime1;//代表分钟开头的位置
+                              var postime2;//代表秒开头的位置
+                              var si = 1;
+                              var sl = 1;
+
+                              
+         for(var t=0;t<csvdata.length;t++){
+
+
+          if(parseInt(csvdata[t].date.substring(5, 6)) >= month1 && parseInt(csvdata[t].date.substring(5, 6)) <= month2){ //选择时间段－月
+        if(parseInt(csvdata[t].date.substring(7, 9)) >= day1 && parseInt(csvdata[t].date.substring(7, 9)) <= day2){ //选择时间段－天
+            if(parseInt(csvdata[t].time.substring(0, 2)) >= hour1 && parseInt(csvdata[t].time.substring(0, 2)) <= hour2){//选择时间段－小时
+                   
+                   
+                  if(csvdata[t].destIP.substring(0, Position-1) == ipa && csvdata[t].destIP.substring(Position, Position2-1) == ipb){ //选择destIpA与B
+                      for(var h=Position2;h<csvdata[t].destIP.length;h++){
+                        if(csvdata[t].destIP.substring(h, h+1) == "."){
+                           Position3 = h+1;
+              
+                         }
+                      }
+                      var len = csvdata[t].destIP.length;
+                                 
+                      if(parseInt(csvdata[t].destIP.substring(Position2, Position3-1)) == IPC && parseInt(csvdata[t].destIP.substring(Position3, len)) == IPD){
+
+                            $(document).ready(function(){
+
+                                $("#content ul table").append("<tr><td align='left' valign='top'><span>date: </span>"+csvdata[t].date+" <span>time: </span>"+csvdata[t].time+" <span>SrcIp: </span>"+csvdata[t].srcIP+" <span>destIp: </span>"+csvdata[t].destIP+" <span>srcport: </span>"+csvdata[t].SRCPORT+" <span>dstport: </span>"+csvdata[t].DSTPORT+" <span>fileaffix: </span>"+csvdata[t].FILEAFFIX+" <span>filelen: </span>"+csvdata[t].FILELEN+"</td></tr>");
+                                $("#content ul table tr td span").css("font-weight", "bold");
+
+                            });
+                                        
+                        }
+                       }
+                     }
+                   
+                  }
+                }
+              }
+                                
+
+                            });
+
+                        });
+
+
+    }
+
+
+
+
+/*********************** View2 Part ************************************/
+    function drawView2() {
+      var width = 280*0.667;
+      var height = 280*0.667;
+      svg3 = d3.select("#view2").append("svg")
+            .attr("id", "axis3")
+            .attr("class", "axis3")
+            .attr("width", width)
+            .attr("height", height)
+            .call(
+              d3.behavior.zoom()
+                   .scaleExtent([1, 10])
+                   .on("zoom", zoom)
+              )
+            .append("g");
+
+
+      function zoom(){
+            svg3.attr("transform", "translate(" + d3.event.translate +
+              ")scale(" +d3.event.scale + ")");
+        }
+
+      
+    }
+
+    function draw3DAxis(){
+       var defs = svg3.append("defs");
+
+       var arrowMarker = defs.append("marker")
+                          .attr("id", "arrow")
+                          .attr("markerUnits", "strokeWidth")
+                          .attr("markerWidth", "12")
+                          .attr("markerHeight", "12")
+                          .attr("viewBox", "0 0 12 12")
+                          .attr("refX", "6")
+                          .attr("refY", "6")
+                          .attr("orient", "auto");
+
+       var lineX = svg3.append("line")
+                    .attr("x1", 200)
+                    .attr("x2", 400)
+                    .attr("y1", 300)
+                    .attr("y2", 300)
+                    .attr("stroke-width", 2)
+                    .attr("marker-end", "url(#arrow)");
+
+       var lineZ = svg3.append("line")
+                     .attr("x1", 200)
+                     .attr("x2", 200)
+                     .attr("y1", 300)
+                     .attr("y2", 20)
+                     .attr("stroke-width", 2)
+                     .attr("marker-end", "url(#arrow)");
+
+       var lineY = svg3.append("line")
+                     .attr("x1", 200)
+                     .attr("x2", 59)
+                     .attr("y1", 300)
+                     .attr("y2", 441)
+                     .attr("stroke-width", 2)
+                     .attr("marker-end", "url(#arrow)");
+
+
+
+       var arrowPath = "M2,2 L10,6 L2,10 L6,6 L2,2";
+       arrowMarker.append("path")
+                  .attr("d", arrowPath)
+                  .attr("fill", "#000");
+    }
+
+
+
+/*****************    View4 Part ***************************************/
+  function drawView4(strIP) {
+
+    var tt = 0;
+    var kk = 0;
+    srcIP = [];
+    nodes = [];
+    edges = [];
+
+      d3.csv("dataaccess3.1.csv", function(error, cdata){
+         if(error){
+          console.log(error);
+         }
+
+          var pos1;//代表月份开头的位置
+          var pos2;//代表日期开头的位置
+          var postime1;//代表分钟开头的位置
+          var postime2;//代表秒开头的位置
+          var si = 1;
+          var sl = 1;
+         for(var q=0;q<cdata.length;q++){
+
+
+       if(parseInt(cdata[q].date.substring(5, 6)) >= month1 && parseInt(cdata[q].date.substring(5, 6)) <= month2){
+          if(parseInt(cdata[q].date.substring(7, 9)) >= day1 && parseInt(cdata[q].date.substring(7, 9)) <= day2){
+
+            if(parseInt(cdata[q].time.substring(0, 2)) >= hour1 && parseInt(cdata[q].time.substring(0, 2)) <= hour2){
+             
+
+                  if(cdata[q].destIP == strIP){
+                    for(kk=0;kk<srcIP.length;kk++){
+                       if(srcIP[kk].src == cdata[q].srcIP && srcIP[kk].dst == strIP){
+                            //同一个源ip
+                             srcIP[kk].times++;
+                             break;
+                           }
+                      }
+                      if(kk == srcIP.length){
+                        //没找到重复的
+                        srcIP.push({
+                           src: cdata[q].srcIP,
+                           dst: strIP,
+                           times: 1
+                         });
+                      }
+                  }
+
+                }
+
+              
+
+            }
+
+          }
+        }  
+
+       var tmp10 = 0;
+
+       for(var ii=0;ii<srcIP.length;ii++){
+        if(ii == 0){
+          //第一次进
+          nodes.push({
+            name: "src"+srcIP[ii].src,
+            no: tmp10
+          });
+
+          nodes.push({
+            name: "dst"+srcIP[ii].dst,
+            no: tmp10+1
+          });
+
+          edges.push({
+            source: tmp10,
+            target: tmp10+1,
+            times: srcIP[ii].times
+          });
+          tmp10 = tmp10+2;
+        }else{
+          
+          if(srcIP[ii].src != srcIP[ii-1].src){
+            //src创立一个新的点,由于src按倒序排序了
+
+            nodes.push({
+              name: "src"+srcIP[ii].src,
+              no: tmp10
+            });
+
+            for(var nn=tmp10-1;nn>=0;nn--){
+              //往回找，看看dst的点是否已存在
+              if(nodes[nn].name == "dst"+srcIP[ii].dst){
+                //找到了一个重复的点,src点不重复添加
+                edges.push({
+                   source: tmp10,
+                   target: nodes[nn].no,
+                   times: srcIP[ii].times
+                });
+
+                break;
+                
+              }
+
+            }
+            tmp10++;
+
+            if(nn<0){
+              //往回木有找到
+              nodes.push({
+                name: "dst"+srcIP[ii].dst,
+                no: tmp10
+              });
+              edges.push({
+                source: tmp10-1,
+                target: tmp10,
+                times: srcIP[ii].times
+              });
+              tmp10++;
+            }
+          }else{
+            //src的点重复了，所以不用再添加那个点
+            var tmp15;
+            //找到那个src重复的点
+           
+            for(var aa=tmp10-1;aa>=0;aa--){
+              
+              if(nodes[aa].name == "src"+srcIP[ii].src){
+                tmp15 = aa;
+                break;
+                
+              }
+            }
+
+            for(var nn=tmp10-1;nn>=0;nn--){
+              //往回找，看看dst的点是否已存在
+              if(nodes[nn].name == "dst"+srcIP[ii].dst){
+                //找到了一个dst重复的点,src点不重复添加
+
+                edges.push({
+                   source: tmp15,
+                   target: nodes[nn].no,
+                   times: srcIP[ii].times
+                });
+
+                break;
+                
+              }
+
+            }
+            
+            if(nn<0){
+              //往回木有找到
+              nodes.push({
+                name: "dst"+srcIP[ii].dst,
+                no: tmp10
+              });
+              edges.push({
+                source: tmp15,
+                target: tmp10,
+                times: srcIP[ii].times
+              });
+              tmp10++;
+            }
+          }
+
+        }
+
+       }
+
+       //console.log(nodes);
+       //console.log(edges);
+
+       startForce();
+
+
+      });
+        
+  }
+   function startForce(){
+     d3.selectAll(".lineF").remove();
+     d3.selectAll(".circleF").remove();
+     var iii = 0;
+      var force = d3.layout.force()
+                .nodes(nodes)
+                .links(edges)
+                .size([300, 200])
+                .linkDistance(function(){
+                  
+                  //return edges[iii++].times+50*0.667;//因为次数多位1，2等，所以加100为了效果好
+                  return 80;
+
+                })
+                .charge(-45);
+
+      force.start();
+
+
+      var svg_edges = svg1.selectAll("lineF")
+                      .data(edges)
+                      .enter()
+                      .append("line")
+                      //.append("text")
+                      .attr("class", "lineF")
+                      .style("stroke", "#bebebe")
+                      .style("stroke-width", 0.5)
+                      .on("mouseover", function(d, j){
+                        var ccc = d3.mouse(this);
+                          var cxx = ccc[0];
+                          var cyy = ccc[1];
+
+                          var tips = svg1.append("g").attr("class", ".tips2");
+                          tips.append("rect")
+                              .attr("class", "tips-border2")
+                              .attr("width", 150)
+                              .attr("height",50)
+                              .attr("x", function(){
+
+                                 if(cxx > 150) cxx -= 150;
+                                 return cxx;
+                              })
+                              .attr("y", function(){
+                                if(cyy > 150) cyy -= 50;
+                                return cyy;
+                              })
+                              .attr("rx", 10*0.667)
+                              .attr("ry", 10*0.667);
+
+                          var word1 = tips
+                              .append("text")
+                              .attr("class", "tips-text2")
+                              .attr("x", cxx+5)
+                              .attr("y", cyy+20)
+                              .text(function(){
+                                 //console.log(nodes[j].name);
+                                 return "attackTimes:"+edges[j].times;
+                              });
+
+                          d3.select(this).style("stroke-width", 3);
+                          d3.select(this).style("stroke", "blue");
+                       
+                      })
+                     .on("mouseout", function(d, j){
+                       svg1.selectAll(".tips-border2").remove();
+                         svg1.selectAll(".tips-text2").remove();
+                          d3.select(this).style("stroke-width", 1);
+                          d3.select(this).style("stroke", "#bebebe");
+                     });
+
+
+    var color = d3.scale.category20();
+
+    var svg_nodes = svg1.selectAll("circleF")
+                       .data(nodes)
+                       .enter()
+                       .append("circle")
+                       .attr("class", "circleF")
+                       .attr("r", function(d, i){
+                        if(nodes[i].name.substring(0, 3) == "src"){
+                           return 5;
+                         }else{
+                          return 20;
+                         }
+                       })
+                       .style("fill", function(d, i){
+                         if(nodes[i].name.substring(0, 3) == "src"){
+                           return "red";
+                         }else{
+                          return "green";
+                         }
+
+                       })
+                       .on("mouseover", function(d, j){
+
+                          var ccc = d3.mouse(this);
+                          var cxx = ccc[0];
+                          var cyy = ccc[1];
+
+                          var tips = svg1.append("g").attr("class", ".tips2");
+                          tips.append("rect")
+                              .attr("class", "tips-border2")
+                              .attr("width", 150)
+                              .attr("height",50)
+                              .attr("x", function(){
+
+                                 if(cxx > 150) cxx -= 150;
+                                 return cxx;
+                              })
+                              .attr("y", function(){
+                                if(cyy > 150) cyy -= 50;
+                                return cyy;
+                              })
+                              .attr("rx", 10*0.667)
+                              .attr("ry", 10*0.667);
+
+                          var word1 = tips
+                              .append("text")
+                              .attr("class", "tips-text2")
+                              .attr("x", cxx+5)
+                              .attr("y", cyy+20)
+                              .text(function(){
+                                 //console.log(nodes[j].name);
+                                 return nodes[j].name;
+                              });
+
+                          var word2 = tips.append("text")
+                              .attr("class", "tips-text2")
+                              .attr("x", cxx+5)
+                              .attr("y", cyy+40)
+                              .text(function(){
+                                 return "no."+nodes[j].no;
+                              });
+
+                       })
+                       .on("mouseout", function(){
+                        svg1.selectAll(".tips-border2").remove();
+                         svg1.selectAll(".tips-text2").remove();
+                        svg1.selectAll(".tips2")
+                          .style("display", "none");
+                       })
+                       .call(force.drag);
+
+
+
+
+    force.on("tick", function(){
+      svg_edges.attr("x1", function(d){return d.source.x; })
+               .attr("y1", function(d){return d.source.y; })
+               .attr("x2", function(d){return d.target.x+5; })
+               .attr("y2", function(d){return d.target.y+5; });
+
+      svg_nodes.attr("cx", function(d){ return d.x; })
+               .attr("cy", function(d){ return d.y; });
+      
+
+    });
+   }
+
+/********************   View 3 Graph ********************************/
+  //要保证其最后
+   function drawGraph() {
+       nodesDst = [];
+       nodesSrc = [];
+       edgesG = [];
+       var hh = 1;
+       var ss = 1;
+       d3.csv("dataaccess3.3.csv", function(error, idata){
+          if(error){
+            console.log(error);
+          }
+
+          for(var uu=0;uu<idata.length;uu++){
+            if(uu == 0){
+               nodesDst.push({
+                 ip: idata[uu].destIP,
+                 no: 0,
+                 times: 1
+                 
+               });
+               nodesSrc.push({
+                 ip: idata[uu].srcIP,
+                 no: 0,
+                 times: 1
+
+               });
+               edgesG.push({
+                 source: idata[uu].srcIP,
+                 target: idata[uu].destIP,
+                 no1: 0,
+                 no2: 0
+               });
+
+            }else{
+               if(idata[uu].srcIP != idata[uu-1].srcIP){
+                //因为倒序排的所以可以这么写
+                //srcIP没有重复
+                 nodesSrc.push({
+                   ip: idata[uu].srcIP,
+                   no: ss,
+                   times: 1
+                 });
+
+                 for(var z=0;z<hh;z++){
+                   if(nodesDst[z].ip == idata[uu].destIP){
+                    //dstip有重复:nodeDst不加，edgesg加，dstnodes次数加
+                    edgesG.push({
+                      source: idata[uu].srcIP,
+                      target: idata[uu].destIP,
+                      no1: ss,
+                      no2: nodesDst[z].no
+
+                    });
+                    ss++;
+                    nodesDst[z].times++;
+                    break;
+                   }
+                 }
+                 if(z == hh){
+                  //dstip没有重复，三个都加
+                   nodesDst.push({
+                     ip: idata[uu].destIP,
+                     no: hh,
+                     times: 1
+                   });
+                   edgesG.push({
+                     source: idata[uu].srcIP,
+                     target: idata[uu].destIP,
+                     no1: ss,
+                     no2: hh
+                   });
+                   ss++;
+                   hh++;
+                 }
+
+               }else{
+                //srcip有重复
+                 for(var z=0;z<hh;z++){
+                  if(nodesDst[z].ip == idata[uu].destIP){
+                    //dstip也有重复，都不加，只加times
+                    nodesDst[z].times++;
+                    nodesSrc[ss-1].times++;
+                    break;
+
+                  }
+                 }
+                 if(z == hh){
+                  //dstip没重复，加入新dstnodes,加老srcnodes的times，加edges
+                   nodesDst.push({
+                     ip: idata[uu].destIP,
+                     no: hh,
+                     times: 1
+                   });
+                   nodesSrc[ss-1].times++;
+                   edgesG.push({
+                    source: idata[uu].srcIP,
+                    target: idata[uu].destIP,
+                    no1: ss-1,
+                    no2: hh
+                   });
+                   hh++;
+                 }
+
+               }
+            }
+          }
+          
+          //console.log(nodesDst);
+          //console.log(nodesSrc);
+          //console.log(edgesG);
+
+          var sheight = 0;
+          var dheight = 0;
+          
+          var circleGS = svg5.selectAll(".circleGS")
+                            .data(nodesSrc)
+                            .enter()
+                            .append("g")
+                            .append("circle")
+                            .attr("class", "circleGS")
+                            .attr("id", function(d, i){
+                                return 10*i;
+                            })
+                            .attr("stroke", "red")
+                            .style("fill", function(d, i){
+                              
+                                return "red";
+                              
+                            })
+                            .attr("r", function(d, i){
+                              if(nodesSrc[i].times/2>20){
+                                return 20;
+                              }else
+                              return nodesSrc[i].times/2;
+                            })
+                            .attr("cx", 40)
+                            .attr("cy", function(d, i){
+                              if(i == 0){
+                                if(nodesSrc[0].times/2>20){
+                                  sheight += 20;
+
+                                }else{
+                                sheight += nodesSrc[0].times/2;}
+                                return sheight;
+                              }else{
+                                if(nodesSrc[i].times/2>20 && nodesSrc[i-1].times/2>20){
+                                  sheight += 40;
+                                }else if(nodesSrc[i].times/2>20 || nodesSrc[i-1].times/2>20){
+                                  sheight += 20;
+                                  if(nodesSrc[i].times/2>20){
+                                    sheight += nodesSrc[i-1].times/2;
+                                  }else{
+                                    sheight += nodesSrc[i].times/2;
+                                  }
+                                }else{
+                                    sheight = sheight+nodesSrc[i-1].times/2+nodesSrc[i].times/2;}
+                                return sheight;
+                              }
+                            })
+                            .on("mouseover", function(){
+                               d3.select(this).attr("stroke", "blue");
+                            })
+                            .on("mouseout", function(){
+                              d3.select(this).attr("stroke", "red");
+                               svg5.selectAll(".tips-border3").remove();
+                              svg5.selectAll(".tips-text3").remove();
+                            })
+                            .on("click", function(d, i){
+                              var nnn = d3.mouse(this);
+                              var nxx = nnn[0];
+                              var nyy = nnn[1];
+
+                              var tips3 = svg5.append("g").attr("class", ".tips3");
+
+                              tips3.append("rect")
+                                  .attr("class", "tips-border3")
+                                  .attr("width", 200)
+                                  .attr("height", 60)
+                                  .attr("x", function(){
+                                     return nxx;
+                                    })
+                                  .attr("y", function(){
+                                     return nyy;
+                                   })
+                                  .attr("rx", 10*0.667)
+                                  .attr("ry", 10*0.667);
+
+                              var word1 = tips3.append("text")
+                                     .attr("class", "tips-text3")
+                                     .attr("x", nxx+10)
+                                     .attr("y", nyy+20)
+                                     .text(function(){
+                                        return "SrcIp: "+nodesSrc[i].ip;
+                                      });
+
+                              var word2 = tips3.append("text")
+                                     .attr("class", "tips-text3")
+                                     .attr("x", nxx+10)
+                                     .attr("y", nyy+40)
+                                     .text(function(){
+                                        return "times: "+nodesSrc[i].times;
+                                      });
+
+                            });
+
+          var circleGD = svg5.selectAll(".circleGD")
+                            .data(nodesDst)
+                            .enter()
+                            .append("g")
+                            .append("circle")
+                            .attr("class", "circleGD")
+                            .attr("id", function(d, i){
+                                return i;
+                            })
+                            .attr("stroke", "green")
+                            .style("fill", function(d, i){
+                              if(nodesDst[i].times>500){
+                                 return "#556B2F";
+                              }else{
+                                return "green";
+                              }
+                            })
+                            .attr("r", function(d, i){
+                              if(nodesDst[i].times/2>20){
+                                return 20;
+                              }else
+                              return nodesDst[i].times/2;
+                            })
+                            .attr("cx", 365)
+                            .attr("cy", function(d, i){
+
+                             
+                              if(i == 0){
+                                if(nodesDst[0].times/2 > 20){
+                                  dheight += 20;
+
+                                }else{
+                                dheight += nodesDst[0].times/2;}
+                                return dheight;
+                              }else{
+                   
+                                if(nodesDst[i].times/2>20 && nodesDst[i-1].times/2>20){
+                                  dheight += 40;
+                                }else {
+                                  if(nodesDst[i].times/2>20){
+                                    dheight = dheight+20+nodesDst[i-1].times/2;
+                                  }else if(nodesDst[i-1].times/2>20){
+                                    dheight = dheight+20+nodesDst[i].times/2;
+                                      }
+                                     else{
+                                    dheight = dheight+nodesDst[i-1].times/2+nodesDst[i].times/2;
+                                      }
+                                  }
+                                return dheight;
+                              }
+                            })
+                            .on("mouseover", function(){
+                              d3.select(this).attr("stroke", "blue");
+                            })
+                            .on("mouseout", function(){
+                              d3.select(this).attr("stroke", "green");
+                               svg5.selectAll(".tips-border4").remove();
+                              svg5.selectAll(".tips-text4").remove();
+                            })
+                            .on("click", function(d, i){
+                              var nnn = d3.mouse(this);
+                              var nxx = nnn[0];
+                              var nyy = nnn[1];
+
+                              var tips4 = svg5.append("g").attr("class", ".tips4");
+
+                              tips4.append("rect")
+                                  .attr("class", "tips-border4")
+                                  .attr("width", 200)
+                                  .attr("height", 60)
+                                  .attr("x", function(){
+                                     return nxx-180;
+                                    })
+                                  .attr("y", function(){
+                                     return nyy;
+                                   })
+                                  .attr("rx", 10*0.667)
+                                  .attr("ry", 10*0.667);
+
+                              var word1 = tips4.append("text")
+                                     .attr("class", "tips-text4")
+                                     .attr("x", nxx-170)
+                                     .attr("y", nyy+20)
+                                     .text(function(){
+                                        return "DestIp: "+nodesDst[i].ip;
+                                      });
+
+                              var word2 = tips4.append("text")
+                                     .attr("class", "tips-text4")
+                                     .attr("x", nxx-170)
+                                     .attr("y", nyy+40)
+                                     .text(function(){
+                                        return "times: "+nodesDst[i].times;
+                                      });
+                            });
+
+
+          var tmp17 = 0;
+          var tmp18 = 0;
+          var lineG = svg5.selectAll(".lineG")
+                         .data(edgesG)
+                         .enter()
+                         .append("g")
+                         .append("line")
+                         .attr("class", "lineG")
+                         .attr("id", function(d, i){
+                          return edgesG[i].target+"-"+(edgesG[i].no2+"");
+                         })
+                         .attr("stroke", "black")
+                         .attr("stroke-width", 0.2)
+                         .style("fill", "none")
+                         .attr("x1", 40)
+                         .attr("x2", 365)
+                         .attr("y1", function(d, i){
+                           tmp17 = 0;
+                          for(var ll=edgesG[i].no1-1;ll>=0;ll--){
+                            if(nodesSrc[ll].times/2>20){
+                              tmp17 += 40;
+                            }else{
+                            tmp17 += 2*nodesSrc[ll].times/2;
+                            }
+                          }
+                          if(nodesSrc[edgesG[i].no1].times/2 > 20){
+                            tmp17 += 20;
+                          }else{
+                            tmp17 += nodesSrc[edgesG[i].no1].times/2;
+                          }
+                          return tmp17;
+                         })
+                         .attr("y2", function(d, i){
+                            tmp18 = 0;
+                          for(var lll=edgesG[i].no2-1;lll>=0;lll--){
+                            if(nodesDst[lll].times/2 > 20){
+                              tmp18 += 40;
+                            }else{
+                            tmp18 += 2*nodesDst[lll].times/2;
+                            }
+                           
+                          }
+                          if(nodesDst[edgesG[i].no2].times/2 > 20){
+                            tmp18 += 20;
+                          }else{
+                            tmp18 += nodesDst[edgesG[i].no2].times/2;
+                          }
+                          return tmp18;
+                         })
+                         .on("mouseover", function(){
+                           d3.select(this).attr("stroke", "blue")
+                           .attr("stroke-width", 1);
+                         })
+                         .on("mouseout", function(){
+                          d3.select(this).attr("stroke", "black")
+                          .attr("stroke-width", 0.2)
+                         })
+                         .on("click", function(d, i){
+                          d3.selectAll("#view3 svg g g circle")
+                           .attr("id", function(o, j){
+                              if(nodesSrc[j].no == edgesG[i].no1){
+                                d3.select(this)
+                                 .style("fill", "blue")
+                                 .attr("stroke", "blue");
+                              }else if(nodesDst[j+nodesSrc.length].no == edgesG[i].no2){
+                                d3.select(this)
+                                 .style("fill", "blue")
+                                 .attr("stroke", "blue");
+                              }
+                           });
+                         });
+
+       });
+   }
+
+    
+/*****************      legend part             *********************/
+  function drawLegend() {
+
+    var dataset=[0];
+    var circleRed = svg6.selectAll(".cirRed")
+                        .data(dataset)
+                        .enter()
+                        .append("g")
+                        .append("circle")
+                        .attr("class", "cirRed")
+                        .attr("stroke", "black")
+                        .style("fill", "red")
+                        .attr("r", 6)
+                        .attr("cx", 15)
+                        .attr("cy", 15);
+
+    var circleGreen = svg6.selectAll(".cirGre")
+                        .data(dataset)
+                        .enter()
+                        .append("g")
+                        .append("circle")
+                        .attr("class", "cirGre")
+                        .attr("stroke", "black")
+                        .style("fill", "green")
+                        .attr("r", 6)
+                        .attr("cx", 85)
+                        .attr("cy", 15);
+
+    var text1 = svg6.append("text")
+                   .attr("x",23)
+                   .attr("y",18)
+                   .attr("font-size",10)
+                   .attr("font-family","simsun")
+                   .text("source");
+
+    var text2 = svg6.append("text")
+                   .attr("x",93)
+                   .attr("y",18)
+                   .attr("font-size",10)
+                   .attr("font-family","simsun")
+                   .text("target");
+
+  }
+
+
+
+
+/*******************        div part             **********************/
+    //有关div的函数，点击第一个时间间隔后选择是否显示第二个
+    function interval(Interval){
+      if(Interval.value == '0'){
+        document.getElementById('day').style.display = 'block';
+        document.getElementById('hour').style.display = 'none';
+        document.getElementById('minute').style.display = 'none';
+        
+      }
+      else if(Interval.value == '1'){
+        document.getElementById('hour').style.display = 'block';
+        document.getElementById('day').style.display = 'none';
+        document.getElementById('minute').style.display = 'none';
+       
+      }
+      else if(Interval.value == '2'){
+        document.getElementById('minute').style.display = 'block';
+        document.getElementById('day').style.display = 'none';
+        document.getElementById('hour').style.display = 'none';
+        
+      }
+     
+      
+    }
+
+    
+
+    function brush(){
+
+       svg5.selectAll(".lineG")
+           .style("fill", "none")
+           .attr("stroke", "black")
+           .attr("stroke-width", 0.2);
+    }
+
+    function getMaxValue(){
+      console.log(maxTimes);
+       return maxTimes;
+    }
+
+  //month上面的histogram
+    function histogram1(){
+       svg8 = d3.select("#histogram1")
+            .append("svg")
+            .attr("id", "axis8")
+            .attr("class", "axis8")
+            .attr("width", 720)
+            .attr("height", 40);
+
+       svg9 = d3.select("#histogram2")
+            .append("svg")
+            .attr("id", "axis9")
+            .attr("class", "axis9")
+            .attr("width", 720)
+            .attr("height", 40);
+
+       svg10 = d3.select("#histogram3")
+            .append("svg")
+            .attr("id", "axis10")
+            .attr("class", "axis10")
+            .attr("width", 720)
+            .attr("height", 40);
+
+       var tmp12;
+       var tmp13;
+
+       d3.csv("datatime2.csv", function(error, sdata){
+           if(error){
+            console.log(error);
+           }
+           
+           for(var rr=0;rr<sdata.length;rr++){
+              tmp12 = parseInt(sdata[rr].time.substring(0, 2));
+              monthArr[tmp12-1]+=parseInt(sdata[rr].times);
+              
+
+
+           }
+           
+           //console.log(monthArr);
+
+           tmp13 = d3.max(monthArr);
+
+           svg8.selectAll(".MRect")
+               .data(monthArr)
+               .enter()
+               .append("rect")
+               .attr("class", "MRect")
+               .style("fill", "grey")
+               .attr("x", function(d, i){
+                 if(i==0) return 0;
+                 else
+                  return i*64.5-10;
+               })
+               .attr("y", function(d, i){
+                 return 40-d/tmp13 *40;
+               })
+               .attr("width", 20)
+               .attr("height", function(d, i){
+                //console.log(d/tmp13 *40);
+                 return d/tmp13 *40;
+               });
+ 
+       });
+
+
+    }
+
+    function histogram2(){
+      var tmp14;
+      var tmp13;
+      svg9.selectAll(".MRect2").remove();
+      var dateArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+      d3.csv("datatime2.csv", function(error, sdata){
+         if(error){
+           console.log(error);
+         }
+
+         for(var rr=0;rr<sdata.length;rr++){
+           if(month1 <= parseInt(sdata[rr].time.substring(0, 2)) && parseInt(sdata[rr].time.substring(0, 2)) <= month2){
+            //在选定的两个月份中间
+                tmp14 = parseInt(sdata[rr].time.substring(3, 5));
+                dateArr[tmp14-1]+=parseInt(sdata[rr].times);
+           }
+         }
+
+         //console.log(dateArr);
+         tmp13 = d3.max(dateArr);
+
+         svg9.selectAll(".MRect2")
+               .data(dateArr)
+               .enter()
+               .append("rect")
+               .attr("class", "MRect2")
+               .style("fill", "grey")
+               .attr("x", function(d, i){
+                 if(i==0) return 0;
+                 else
+                  return i*23.7-6;
+               })
+               .attr("y", function(d, i){
+                 return 40-d/tmp13 *40;
+               })
+               .attr("width", 12)
+               .attr("height", function(d, i){
+                //console.log(d/tmp13 *40);
+                 return d/tmp13 *40;
+               });
+      });
+    }
+
+    function histogram3(){
+      var tmp15;
+      var tmp13;
+      svg10.selectAll(".MRect3").remove();
+      var hourArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+      d3.csv("datatime2.csv", function(error, sdata){
+         if(error){
+           console.log(error);
+         }
+
+         for(var rr=0;rr<sdata.length;rr++){
+           if(month1 <= parseInt(sdata[rr].time.substring(0, 2)) && parseInt(sdata[rr].time.substring(0, 2)) <= month2){
+            //在选定的两个月份中间
+              if(day1 <= parseInt(sdata[rr].time.substring(3, 5)) && parseInt(sdata[rr].time.substring(3, 5)) <= day2){
+                //在选定的两天之间
+                tmp15 = parseInt(sdata[rr].time.substring(6, 8));
+                hourArr[tmp15]+=parseInt(sdata[rr].times);
+              }
+              
+           }
+         }
+
+         //console.log(hourArr);
+         tmp13 = d3.max(hourArr);
+
+         svg10.selectAll(".MRect3")
+               .data(hourArr)
+               .enter()
+               .append("rect")
+               .attr("class", "MRect3")
+               .style("fill", "grey")
+               .attr("x", function(d, i){
+                 if(i==0) return 0;
+                 else
+                  return i*29.6-8;
+               })
+               .attr("y", function(d, i){
+                 return 40-d/tmp13 *40;
+               })
+               .attr("width", 16)
+               .attr("height", function(d, i){
+                //console.log(d/tmp13 *40);
+                 return d/tmp13 *40;
+               });
+      });
+
+    }
+    
+
+    function JISUAN(str1){
+         arr = [];
+         var tmp01=0;
+      d3.csv("JISUAN.csv", function(error, data){
+      if(error){
+        console.log(error);
+      }
+
+
+      for(var j=0;j<data.length;j++){
+        if(data[j].A == str1){
+          if(tmp01 == 0){
+            arr.push(data[j].B);
+            tmp01 = 1;
+          }else
+
+          if(data[j].B != data[j-1].B){
+            arr.push(data[j].B);
+          }
+
+        }
+      }
+      //console.log(arr);
+      });
+      return arr;
+    }
+
+
+
+
+   function search2() {
+    //d3.selectAll("#axis").remove();
+    var v1;
+    var v2;
+    var k;
+    var mess = 0;
+    var j = 0;
+    //var destIP = new Array();
+    Data = [];
+    Data2 = [];
+    Data4 = [];
+    Data3 = [];
+    var nodes = [];
+    var edges = [];
+
+     
+
+
+    d3.csv("dataaccess3.csv", function (error, csvdata){
+      // body...
+      if(error){
+        console.log(error);
+      }
+
+
+      //console.log("2ipa="+ipa);
+      //console.log("2ipb="+ipb);
+
+
+
+      //决定ip的前两部分的位数
+      if(ipa>99){
+         if(ipb>99){
+             Position = 4;
+             Position2 = 8;//C为从8开始
+         }else
+         if(ipb>9){
+            Position = 4;
+            Position2 = 7;
+         }else{
+            Position = 4;
+            Position2 = 6;
+         }
+      }else
+      if(ipa>9){
+        if(ipb>99){
+             Position = 3;
+             Position2 = 7;
+         }else
+         if(ipb>9){
+            Position = 3;
+            Position2 = 6;
+         }else{
+            Position = 3;
+            Position2 = 5;
+         }
+
+      }else{
+        if(ipb>99){
+             Position = 2;
+             Position2 = 6;
+         }else
+         if(ipb>9){
+            Position = 2;
+            Position2 = 5;
+         }else{
+            Position = 2;
+            Position2 = 4;
+         }
+
+      }
+
+
+      var pos1;//代表月份开头的位置
+      var pos2;//代表日期开头的位置
+      var postime1;//代表分钟开头的位置
+      var postime2;//代表秒开头的位置
+      var si = 1;
+      var sl = 1;
+      destIP = [];
+       
+      for(var i=0;i<csvdata.length;i++){
+      
+        
+          if(parseInt(csvdata[i].date.substring(5, 6)) >= month1 && parseInt(csvdata[i].date.substring(5, 6)) <= month2){ //选择时间段－月
+        if(parseInt(csvdata[i].date.substring(7, 9)) >= day1 && parseInt(csvdata[i].date.substring(7, 9)) <= day2){ //选择时间段－天
+            if(parseInt(csvdata[i].time.substring(0, 2)) >= hour1 && parseInt(csvdata[i].time.substring(0, 2)) <= hour2){//选择时间段－小时
+                   
+                   
+                  if(csvdata[i].destIP.substring(0, Position-1) == ipa && csvdata[i].destIP.substring(Position, Position2-1) == ipb){ //选择destIpA与B
+                      for(var h=Position2;h<csvdata[i].destIP.length;h++){
+                        if(csvdata[i].destIP.substring(h, h+1) == "."){
+                           Position3 = h+1;
+              
+                         }
+                      }
+                      var len = csvdata[i].destIP.length;
+                      if(j == 0){//第一次进
+                        destIP[j++] = parseInt(csvdata[i].destIP.substring(Position2, Position3-1));
+                        destIP[j++] = parseInt(csvdata[i].destIP.substring(Position3, len));
+                        destIP[j++] = 1;//本ip次数为1
+
+                      }else{
+                        for(k=0;k<destIP.length;k++){
+            
+                         if(parseInt(csvdata[i].destIP.substring(Position2, Position3-1)) == destIP[k] && parseInt(csvdata[i].destIP.substring(Position3, len)) == destIP[k+1]){
+
+                               destIP[k+2]++;
+           
+                               break;
+                            }else{
+                               k = k+2;
+                            }
+
+                         }
+                         if(k == destIP.length){//没找到重复的，所以新加入ip
+            
+                             destIP[j++] = parseInt(csvdata[i].destIP.substring(Position2, Position3-1));
+                             destIP[j++] = parseInt(csvdata[i].destIP.substring(Position3, len));
+                             destIP[j++] = 1;
+                          }
+
+                      }
+
+
+                  }
+
+                }
+
+              
+            }
+        }
+
+
+      }
+
+      console.log("ceshidest");
+      console.log(destIP);
+      svg.selectAll(".MyRect").remove();
+
+      drawMatrix();
+      
+
+    });
+
+
+    }
+
+
+    
+ </script>
+    <script src="js/jquery-plus-ui.min.js"></script>
+    <script src="js/bower-libs.min.js"></script>
+    <script src="js/jquery-ui-slider-pips.js"></script>
+    <script src="js/examples3.js"></script>
+
+</body>
+</html>
